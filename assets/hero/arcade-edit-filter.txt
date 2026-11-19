@@ -1,0 +1,1 @@
+[0:v]scale=1920:1080,drawbox=x=85:y=340:w=890:h=390:color=black:t=fill:enable='lt(t,2.48)',drawbox=x=85:y=340:w=650:h=230:color=black:t=fill:enable='between(t,2.48,2.76)',drawtext=fontfile=assets/hero/caption-font.ttc:textfile=assets/hero/arcade-caption.txt:fontcolor=0xd6d6d6:fontsize=27:line_spacing=24:x=115:y=350:alpha='if(lt(t,2.1),1,max(0,1-(t-2.1)/0.35))'[v]
