@@ -1,4 +1,13 @@
+// Keep hover and scroll videos off the network until they are actually used.
+function loadInteractionVideo(video){
+ let changed=false;
+ video.querySelectorAll('source[data-src]').forEach(source=>{source.src=source.dataset.src;source.removeAttribute('data-src');changed=true;});
+ if(changed){video.preload='auto';video.load();}
+}
 const slides=[...document.querySelectorAll('.slide')], dots=[...document.querySelectorAll('.hero-dots button')], progress=document.querySelector('.progress-track i'), current=document.querySelector('.progress-current'), intro=document.querySelector('.intro'), film=document.querySelector('.scroll-film'), copySlides=[...document.querySelectorAll('.slide-content')];let scrollProgress=0,rafPending=false;
+window.addEventListener('scroll',()=>{
+ if(!matchMedia('(max-width:720px), (prefers-reduced-motion:reduce)').matches&&!navigator.connection?.saveData)loadInteractionVideo(film);
+},{passive:true,once:true});
 function smoothstep(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)}
 function renderScroll(){rafPending=false;const rect=intro.getBoundingClientRect(),travel=intro.offsetHeight-window.innerHeight;scrollProgress=Math.max(0,Math.min(1,-rect.top/Math.max(1,travel)));updateCoverMotion();const fade=smoothstep((scrollProgress-.10)/.25);const profileReveal=document.querySelector('.profile-reveal');if(profileReveal){profileReveal.classList.toggle('profile-entered',scrollProgress>.16)}copySlides.forEach((copy,i)=>{copy.style.opacity=i===1?String(fade):'1';copy.style.transform='none';copy.style.clipPath='none';copy.style.visibility=i===1&&fade===0?'hidden':'visible';copy.inert=i===1&&fade<.99});const stage=fade<.5?0:1;dots.forEach((dot,i)=>dot.classList.toggle('selected',i===stage));progress.style.width=`${Math.max(4,scrollProgress*100)}%`;current.textContent=`0${stage+1}`;document.querySelector('.cursor-hint').style.opacity=String(1-smoothstep(scrollProgress/.18));if(film.readyState>=2&&Number.isFinite(film.duration)){const target=film.duration*scrollProgress;if(Math.abs(film.currentTime-target)>.035)film.currentTime=target}}
 function requestRender(){if(!rafPending){rafPending=true;requestAnimationFrame(renderScroll)}}function goToProgress(value){const travel=intro.offsetHeight-window.innerHeight;window.scrollTo({top:intro.offsetTop+travel*Math.max(0,Math.min(1,value)),behavior:'smooth'})}
@@ -214,7 +223,7 @@ function updateCoverMotion(){
  heroCover.style.opacity='1';
  const active=coverHovered&&scrollProgress<.12&&!document.hidden&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(!active){coverVideo.pause();heroCover.classList.remove('playing');return;}
- if(coverVideo.paused&&!coverPlayPending){coverPlayPending=true;coverVideo.play().catch(()=>heroCover.classList.remove('playing')).finally(()=>{coverPlayPending=false;});}
+ if(coverVideo.paused&&!coverPlayPending){loadInteractionVideo(coverVideo);coverPlayPending=true;coverVideo.play().catch(()=>heroCover.classList.remove('playing')).finally(()=>{coverPlayPending=false;});}
 }
 coverVideo.addEventListener('playing',()=>{if(coverHovered&&scrollProgress<.12&&!document.hidden)heroCover.classList.add('playing');else coverVideo.pause();});
 function enterCover(event){if(event.pointerType==='touch')return;if(!coverHovered)coverVideo.currentTime=0;coverHovered=true;updateCoverMotion();}
@@ -241,6 +250,7 @@ if (arcadeScene) {
   arcadeScene.addEventListener('pointerenter', event => {
     if (event.pointerType === 'touch') return;
     hovered = true;
+    loadInteractionVideo(motion);
     motion.currentTime = 0;
     motion.play().catch(stopMotion);
   });

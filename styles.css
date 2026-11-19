@@ -117,7 +117,7 @@
 .contact-paper:before{content:"";position:absolute;top:-14px;left:29%;width:40%;height:30px;transform:rotate(-4deg);background:linear-gradient(115deg,#fff9,#d8d5cfbb,#fff9);clip-path:polygon(1% 0,98% 5%,100% 90%,3% 100%);box-shadow:0 1px 5px #0002}.contact-paper h3{font-size:clamp(16px,2.1vw,27px);margin:0;letter-spacing:.02em}.contact-paper div{margin-top:28%;font-size:clamp(8px,1.05vw,13px);line-height:1.8}.contact-paper p{margin:5px 0}.contact-paper a{color:inherit;text-decoration:none;overflow-wrap:anywhere}
 @media(max-width:600px){.profile-collage{padding:75px 20px 85px}.profile-board{width:100%;aspect-ratio:.68}.resume-note{left:0;top:0;width:54%;height:86%;padding:6% 4%}.resume-note header{margin-bottom:20%}.resume-note section{max-width:95%;margin-bottom:14%}.resume-note section p{font-size:9px}.profile-traits{top:1%;width:44%;font-size:10px;padding:5% 1%}.portrait-print{left:46%;top:23%;width:53%;padding:2% 2% 0}.portrait-print figcaption{font-size:19px}.profile-degree{left:43%;bottom:31%;width:57%;font-size:15px}.contact-paper{top:auto;bottom:0;right:5%;width:57%;height:25%;padding:7% 3% 2%;transform:rotate(6deg)}.contact-paper div{margin-top:9%;font-size:10px}.contact-paper h3{font-size:19px}}
 /* Third scroll scene: keep all copy in the arcade artwork's black margin. */
-.arcade-stage{inset:0;background:#050505 url('assets/hero/arcade.png') center right / auto 100% no-repeat}
+.arcade-stage{inset:0;background:#050505 url('assets/hero/arcade.webp') center right / auto 100% no-repeat}
 .arcade-stage .arcade-copy{position:absolute;left:6%;right:auto;top:25%;width:29%;max-width:410px}
 .arcade-copy h2{font-size:clamp(30px,3.8vw,54px);margin-bottom:24px;letter-spacing:-.045em}
 .arcade-copy .about-small{font-size:clamp(12px,1.08vw,16px);line-height:1.95;color:#d1d1d1;text-shadow:none}
@@ -302,7 +302,7 @@
 @media(max-width:380px){.tribes-symbol-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Feather the actual artwork bounds, including pillarboxed desktop layouts. */
 .hero-frame .profile-artwork{container-type:size;isolation:isolate;overflow:hidden;background:#222b3b}
-.hero-frame .profile-artwork:before{content:'';position:absolute;z-index:-1;inset:-35px;background:url('assets/hero/personal-information.png') center/cover no-repeat;filter:blur(35px);opacity:.45}
+.hero-frame .profile-artwork:before{content:'';position:absolute;z-index:-1;inset:-35px;background:url('assets/hero/personal-information.webp') center/cover no-repeat;filter:blur(35px);opacity:.45}
 .hero-frame .profile-reveal{flex:none;width:min(100cqw,calc(100cqh * 1920 / 1259));height:auto;aspect-ratio:1920/1259;max-height:100%;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent),linear-gradient(transparent,#000 5%,#000 95%,transparent);mask-composite:intersect;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent),linear-gradient(transparent,#000 5%,#000 95%,transparent);-webkit-mask-composite:source-in}
 
 /* Actual game details arranged as an annotated sketchbook. */
@@ -350,3 +350,6 @@
 .screw-notebook .note-crop-viewport{position:relative;overflow:hidden;max-height:none;margin-inline:auto}
 .project-design-notebook .note-crop-viewport{width:min(100%,calc(360px * var(--crop-ratio)))}
 .modal-gallery .note-crop-viewport>img{position:absolute;display:block;max-width:none;max-height:none;object-fit:fill;border-radius:0;margin:0;transform:none}
+
+/* Smaller first-paint artwork for mobile screens. */
+@media(max-width:720px){.slide[data-slide="0"]{--hero:url("assets/hero/cover-mobile.webp")!important}}
