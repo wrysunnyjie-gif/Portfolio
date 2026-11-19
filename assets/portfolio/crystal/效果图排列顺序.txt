@@ -1,0 +1,36 @@
+逻辑：**图标→启动→主界面→核心对局→玩法机制→奖励弹窗→附属小游戏→系统功能→提现**
+
+1. icon
+2. loading
+3. 主界面
+4. pay table（赔率表，规则说明）
+5. scatter
+6. scatter2
+7. free spin
+8. re spin
+9. CASH FEATURE
+10. cake house
+11. mini game
+12. mini
+13. minor
+14. major
+15. grand
+16. money
+17. special win1_
+18. special win2
+19. special win3
+20. special win5
+21. MASSIVE WIN（special win5）
+22. win cash
+23. 翻倍
+24. 宝箱
+25. 刮刮卡
+26. 解锁格子
+27. bank
+28. 弹幕
+29. 提示页
+30. 弹窗
+31. 设置
+32. 提现
+33. 提现账号
+34. 提现验证码
