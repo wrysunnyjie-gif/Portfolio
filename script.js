@@ -36,28 +36,65 @@ function renderScreen(item,p,label,index,kind='interface'){
   if(item.kind==='video')return `<figure class="gallery-video"><video controls preload="metadata"><source src="assets/portfolio/${item.folder}/${encodeURIComponent(item.name)}" type="video/mp4"></video><figcaption>${label}</figcaption></figure>`;
   return `<figure class="${kind}-frame"><span class="device-glow"></span><button type="button" class="image-preview-trigger" aria-label="放大查看 ${p.title} ${label} ${index+1}"><img src="assets/portfolio/${item.folder}/${encodeURIComponent(item.name)}" alt="${p.title} ${label} ${index+1}" loading="lazy"></button><figcaption>${label} · ${String(index+1).padStart(2,'0')}</figcaption></figure>`;
 }
-let projectImageObserver;
+let stopProjectImages=()=>{};
+function deferredProjectMarkup(markup){
+ return markup.replace(/<img\b[^>]*>/g,tag=>tag.replace(/\bsrc=(["'])(.*?)\1/,(_,quote,src)=>{
+  const preview=projectPreviews[decodeURIComponent(src)];
+  return `data-project-src="${preview||src}" data-full-src="${src}"`;
+ }).replace(/\sloading="[^"]*"/g,''));
+}
 function prepareProjectImages(){
- projectImageObserver?.disconnect();
+ stopProjectImages();
  const panel=document.querySelector('.modal-panel');
- projectImageObserver=new IntersectionObserver(entries=>{
-  entries.forEach(({target,isIntersecting})=>{
-   if(!isIntersecting)return;
-   target.loading='eager';
-   projectImageObserver.unobserve(target);
+ const records=[...panel.querySelectorAll('img[data-project-src]')].map(img=>({img,src:img.dataset.projectSrc,state:'idle',attempts:0,retryAt:0}));
+ const timers=new Set();let ended=false,frame=0,active=0;
+ function schedule(){if(!ended&&!frame)frame=requestAnimationFrame(scan);}
+ function scan(){
+  frame=0;if(ended||!modal.classList.contains('open'))return;
+  const bounds=panel.getBoundingClientRect();
+  const nearby=records.filter(record=>{
+   if(record.state!=='idle'||record.retryAt>Date.now())return false;
+   const box=record.img.getBoundingClientRect();
+   return box.bottom>=bounds.top-300&&box.top<=bounds.bottom+500;
   });
- },{root:panel,rootMargin:'700px 0px'});
- panel.querySelectorAll('img').forEach(img=>{
+  nearby.sort((a,b)=>Math.abs(a.img.getBoundingClientRect().top-bounds.top)-Math.abs(b.img.getBoundingClientRect().top-bounds.top));
+  for(const record of nearby){if(active>=4)break;start(record);}
+ }
+ function start(record){
+  const {img}=record;record.state='loading';record.attempts++;active++;
+  // Explicit src assignment bypasses native lazy-loading in embedded browsers.
+  img.loading='eager';
+  const url=new URL(record.attempts===3?img.dataset.fullSrc:record.src,document.baseURI);
+  if(record.attempts>1)url.searchParams.set('retry',String(record.attempts));
+  img.src=url.href;
+  const timeout=setTimeout(()=>{timers.delete(timeout);fail(record);},20000);
+  record.timeout=timeout;timers.add(timeout);
+ }
+ function fail(record){
+  if(ended||record.state!=='loading')return;
+  clearTimeout(record.timeout);timers.delete(record.timeout);
+  active--;record.state=record.attempts<3?'idle':'failed';
+  record.retryAt=Date.now()+record.attempts*1000;
+  if(record.state==='idle'){
+   const timer=setTimeout(()=>{timers.delete(timer);schedule();},record.attempts*1000+20);timers.add(timer);
+  }
+  schedule();
+ }
+ records.forEach(record=>{
+  const {img}=record;
   img.decoding='async';
-  img.addEventListener('error',()=>{
-   if(!img.isConnected||img.dataset.retried)return;
-   img.dataset.retried='true';
-   const url=new URL(img.src,document.baseURI);
-   url.searchParams.set('retry','1');
-   img.src=url.href;
+  img.addEventListener('load',()=>{
+   if(ended||record.state!=='loading')return;
+   clearTimeout(record.timeout);timers.delete(record.timeout);
+   record.state='loaded';active--;schedule();
   });
-  projectImageObserver.observe(img);
+  img.addEventListener('error',()=>fail(record));
  });
+ function reconnect(){records.forEach(record=>{if(record.state==='failed'){record.state='idle';record.attempts=0;record.retryAt=0;}});schedule();}
+ panel.addEventListener('scroll',schedule,{passive:true});
+ window.addEventListener('resize',schedule);window.addEventListener('online',reconnect);
+ stopProjectImages=()=>{ended=true;cancelAnimationFrame(frame);timers.forEach(clearTimeout);panel.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);window.removeEventListener('online',reconnect);};
+ schedule();
 }
 function designNoteArrow(){return '';}
 // Use a regular image viewport so local and HTTP previews share the same loading path.
@@ -156,8 +193,8 @@ function renderSection(section,p,key){
   if(section.title==='录屏')return `<section class="gallery-section media-section"><div class="showcase-heading"><span>03</span><h4>录屏展示</h4><i></i></div>${section.items.map((item,i)=>renderScreen(item,p,'录屏展示',i)).join('')}</section>`;
   return `<section class="gallery-section"><div class="showcase-heading"><span>02</span><h4>${section.title}</h4><i></i></div><div class="standard-grid">${section.items.map((item,i)=>renderScreen(item,p,section.title,i,'standard')).join('')}</div></section>`;
 }
-function openProject(key){activeProject=key;const p=projects[key],title=document.querySelector('#modal-title');title.textContent=p.title;title.hidden=key==='bingo';document.querySelector('#modal-kicker').textContent=p.type;document.querySelector('#modal-description').textContent=p.description;gallery.innerHTML=p.sections.map(section=>renderSection(section,p,key)).join('')+(key==='bingo'?bingoGiftFinale():'');modal.classList.add('open');modal.setAttribute('aria-hidden','false');prepareProjectImages();initCelebration();initGiftFinale();document.body.style.overflow='hidden';document.querySelector('.modal-panel').scrollTop=0;document.querySelector('.modal-close').focus()}
-function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}document.querySelectorAll('.project-card').forEach(card=>card.addEventListener('click',()=>openProject(card.dataset.project)));document.querySelector('.modal-close').addEventListener('click',closeModal);document.querySelector('.modal-backdrop').addEventListener('click',closeModal);document.querySelector('.modal-next').addEventListener('click',()=>{const keys=['bingo','screw','bird','crystal','eliminate','puzzletaire','tribes'],i=keys.indexOf(activeProject);openProject(keys[(i+1)%keys.length])});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});
+function openProject(key){activeProject=key;const p=projects[key],title=document.querySelector('#modal-title');title.textContent=p.title;title.hidden=key==='bingo';document.querySelector('#modal-kicker').textContent=p.type;document.querySelector('#modal-description').textContent=p.description;gallery.innerHTML=deferredProjectMarkup(p.sections.map(section=>renderSection(section,p,key)).join('')+(key==='bingo'?bingoGiftFinale():''));modal.classList.add('open');modal.setAttribute('aria-hidden','false');prepareProjectImages();initCelebration();initGiftFinale();document.body.style.overflow='hidden';document.querySelector('.modal-panel').scrollTop=0;document.querySelector('.modal-close').focus()}
+function closeModal(){stopProjectImages();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}document.querySelectorAll('.project-card').forEach(card=>card.addEventListener('click',()=>openProject(card.dataset.project)));document.querySelector('.modal-close').addEventListener('click',closeModal);document.querySelector('.modal-backdrop').addEventListener('click',closeModal);document.querySelector('.modal-next').addEventListener('click',()=>{const keys=['bingo','screw','bird','crystal','eliminate','puzzletaire','tribes'],i=keys.indexOf(activeProject);openProject(keys[(i+1)%keys.length])});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});
 
 // Full-size artwork preview above the project dialog.
 const imagePreview=document.createElement('dialog');
@@ -171,7 +208,7 @@ function closeImagePreview(){imagePreview.close();imagePreview.classList.remove(
 gallery.addEventListener('click',event=>{
  const trigger=event.target.closest('.image-preview-trigger');if(!trigger)return;
  previewTrigger=trigger;const source=trigger.querySelector('img');
- previewImage.src=source.currentSrc||source.src;previewImage.alt=source.alt;
+ previewImage.src=source.dataset.fullSrc||source.currentSrc||source.src;previewImage.alt=source.alt;
  imagePreview.querySelector('.image-preview-title').textContent=source.alt;
  imagePreview.classList.remove('original-size');previewZoom.textContent='原图大小';previewZoom.setAttribute('aria-pressed','false');
  imagePreview.showModal();previewStage.scrollTo(0,0);imagePreview.querySelector('.image-preview-close').focus();

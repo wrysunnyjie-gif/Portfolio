@@ -51,7 +51,7 @@
 /* Let the symbol cards stand on their own, without an enclosing panel. */
 .crystal-symbols{padding:0;border:0;border-radius:0;background:none}
 .crystal-rewards .image-preview-trigger{height:186px;display:flex;align-items:center;justify-content:center}
-.modal-gallery .crystal-rewards .image-preview-trigger img[src$="asset-key-hd.png"]{width:55px;height:59px;flex:none}
+.modal-gallery .crystal-rewards .image-preview-trigger img[data-full-src$="asset-key-hd.png"]{width:55px;height:59px;flex:none}
 
 .crystal-genie-feature{display:grid;grid-template-columns:1fr 1.1fr;align-items:center;gap:30px;padding:clamp(22px,4vw,44px);border:1px solid #e8bc6460;border-radius:26px;background:radial-gradient(ellipse at 85% 30%,#ac5e9140,transparent 65%),linear-gradient(135deg,#231a3c,#39234c 60%,#222343);overflow:hidden}.crystal-genie-copy h3{margin:0 0 24px;font-size:clamp(30px,4vw,48px);line-height:1.15;color:#fff4dc}.crystal-genie-copy h3 em{font-style:normal;color:#f0cb71}.crystal-genie-copy>p:not(.feature-number){font-size:13px;line-height:1.95;color:#e9dfef;margin:0 0 14px}.crystal-genie-media{min-width:0}.crystal-genie-video{display:block;width:100%;max-height:540px;object-fit:contain;border-radius:18px;background:#171324}@media(max-width:720px){.crystal-genie-feature{grid-template-columns:1fr;gap:20px}.crystal-genie-video{max-height:480px}}
 
@@ -64,9 +64,9 @@
 @media(max-width:720px){.crystal-genie-feature{padding:28px 24px 310px;min-height:0}.crystal-genie-copy{width:100%}.crystal-genie-media{inset:auto -5% 0;height:320px;-webkit-mask-image:linear-gradient(0deg,transparent,#000 15%,#000 68%,transparent);mask-image:linear-gradient(0deg,transparent,#000 15%,#000 68%,transparent)}.crystal-genie-video{max-height:none;object-fit:cover;-webkit-mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}}
 
 /* Balance the smaller heart and key against their neighboring icons. */
-.modal-gallery .crystal-symbols .image-preview-trigger img[src$="asset-7.png"]{transform:scale(1.5);transform-origin:center}
-.modal-gallery .crystal-rewards .image-preview-trigger img[src$="asset-key-hd.png"]{width:130px;height:140px;max-width:100%;object-fit:contain;flex:none}
-@media(max-width:720px){.modal-gallery .crystal-rewards .image-preview-trigger img[src$="asset-key-hd.png"]{width:110px;height:118px}}
+.modal-gallery .crystal-symbols .image-preview-trigger img[data-full-src$="asset-7.png"]{transform:scale(1.5);transform-origin:center}
+.modal-gallery .crystal-rewards .image-preview-trigger img[data-full-src$="asset-key-hd.png"]{width:130px;height:140px;max-width:100%;object-fit:contain;flex:none}
+@media(max-width:720px){.modal-gallery .crystal-rewards .image-preview-trigger img[data-full-src$="asset-key-hd.png"]{width:110px;height:118px}}
 
 /* Translucent project folders with raised tabs and layered artwork. */
 .project-grid{gap:28px 24px;padding-top:8px}
